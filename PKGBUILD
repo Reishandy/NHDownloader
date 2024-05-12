@@ -24,10 +24,9 @@ package() {
   pip install -r requirements.txt
   deactivate
 
-  # Create a script that activates the virtual environment and runs NHDownloader.py
+  # Create a script that runs NHDownloader.py with the Python interpreter in the virtual environment
   echo '#!/bin/sh' > /tmp/NHDownloader
-  echo 'source /usr/share/NHDownloader/.venv/bin/activate' >> /tmp/NHDownloader
-  echo 'python /usr/share/NHDownloader/NHDownloader.py "$@"' >> /tmp/NHDownloader
+  echo '/usr/share/NHDownloader/.venv/bin/python /usr/share/NHDownloader/NHDownloader.py "$@"' >> /tmp/NHDownloader
 
   # Make the script executable and install it into /usr/bin
   chmod +x /tmp/NHDownloader
