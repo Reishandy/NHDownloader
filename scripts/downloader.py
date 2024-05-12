@@ -22,6 +22,7 @@ def download(output: str, image_urls: List[str]) -> None:
             for i, url in enumerate(image_urls, start=1):
                 extension: str = url.split("/")[5].split('.')[1]
                 filename: str = os.path.join(output, f"{i}.{extension}")
+                filename = os.path.abspath(filename)
                 executor.submit(download_image, url, filename, progress, client)
 
         progress.close()
@@ -51,11 +52,9 @@ def download_image(url: str, filename: str, progress, client) -> None:
             out_file.write(chunk)
             progress.update(len(chunk))
 
-    progress.update_to(progress.n + 1)
-
 
 if __name__ == "__main__":
     from scrapper import scrapper
-    title, urls = scrapper("509030")
+    title, urls = scrapper("509176")
     print(urls)
     download(title, urls)

@@ -16,7 +16,7 @@ def scrapper(n_id: str) -> tuple:
     thumb_containers = soup.find_all('div', class_='thumb-container')
 
     title = f"{title_element.text} {author_element.text}"
-    title = sub(r'[\\/]', '', title)
+    title = sub(r'[\\/<>:*?"| ]', '_', title)
 
     image_urls: List[str] = []
     for container in thumb_containers:
