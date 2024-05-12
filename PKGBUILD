@@ -8,6 +8,7 @@ license=('MIT')
 depends=('python' 'python-pip')
 
 build() {
+  cd "$srcdir/../"
   python -m venv .venv
   source .venv/bin/activate
   pip install -r requirements.txt
@@ -15,5 +16,6 @@ build() {
 }
 
 package() {
+  cd "$srcdir/../"
   install -Dm755 NHDownloader.py "$pkgdir/usr/bin/NHDownloader"
 }
