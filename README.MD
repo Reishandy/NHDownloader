@@ -18,7 +18,7 @@ pip install -r requirements.txt
 
 ## Usage
 ```bash
-python NHD.py [ID/LINK] [-c] [-o OUTPUT] [-h] [-v]
+python NHDownloader.py [ID/LINK] [-c] [-o OUTPUT] [-h] [-v]
 ```
 Where: 
 
