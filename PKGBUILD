@@ -18,7 +18,9 @@ build() {
 package() {
   # Install the entire repository into /usr/share/NHDownloader
   install -dm755 "$pkgdir/usr/share/$pkgname"
-  cp -a "$srcdir/../"/* "$pkgdir/usr/share/$pkgname"
+
+  # Copy all files and directories except the pkg directory
+  find "$srcdir/../" -mindepth 1 -maxdepth 1 ! -name pkg -print0 | cpio -pdmv0 "$pkgdir/usr/share/$pkgname"
 
   # Create a script that activates the virtual environment and runs NHDownloader.py
   echo '#!/bin/sh' > NHDownloader
