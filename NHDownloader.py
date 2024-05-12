@@ -1,22 +1,10 @@
 import argparse
 from re import match, fullmatch
 from typing import List
-from os import path
 
 from scripts.scrapper import scrapper
 from scripts.downloader import download
 from scripts.archive import archive
-
-
-# activate venv
-script_dir = path.dirname(path.realpath(__file__))
-
-# Construct the path to the virtual environment
-venv_dir = path.join(script_dir, '.venv')
-activate_this_file = path.join(venv_dir, 'bin', 'activate_this.py')
-
-with open(activate_this_file) as file_:
-    exec(file_.read(), {'__file__': activate_this_file})
 
 
 def main():
