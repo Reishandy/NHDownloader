@@ -5,10 +5,14 @@ pkgdesc="A Python-based command-line tool that allows you to download doujin fro
 arch=('any')
 url="https://github.com/Reishandy/NHDownloader"
 license=('MIT')
-depends=('python' 'python-pip')
+depends=('python')
+makedepends=('git' 'python-pip')
 
 build() {
-  cd "$srcdir/../"
+  # Clone the repository into the src directory
+  git clone https://github.com/Reishandy/NHDownloader.git "$srcdir/$pkgname"
+
+  cd "$srcdir/$pkgname"
   python -m venv .venv
   source .venv/bin/activate
   pip install -r requirements.txt
@@ -18,9 +22,7 @@ build() {
 package() {
   # Install the entire repository into /usr/share/NHDownloader
   install -dm755 "$pkgdir/usr/share/$pkgname"
-
-  # Copy all files and directories except the pkg directory
-  find "$srcdir/../" -mindepth 1 -maxdepth 1 ! -name pkg -print0 | cpio -pdmv0 "$pkgdir/usr/share/$pkgname"
+  cp -a "$srcdir/$pkgname"/* "$pkgdir/usr/share/$pkgname"
 
   # Create a script that activates the virtual environment and runs NHDownloader.py
   echo '#!/bin/sh' > NHDownloader
