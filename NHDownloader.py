@@ -38,6 +38,7 @@ def main():
         exit(2)
 
     for n_id, output in zip(n_ids, outputs):
+        n_id = get_id(n_id)
         zip_: bool = args.zip
         cbz: bool = args.cbz
 
