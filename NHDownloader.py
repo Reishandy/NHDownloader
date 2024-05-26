@@ -1,10 +1,17 @@
 import argparse
+from os import cpu_count
 from re import match, fullmatch
 from typing import List
 
+from rich.console import Console
+from rich.status import Status
+from httpx import Client
+
 from scripts.scrapper import scrapper
-from scripts.downloader import download
+from scripts.downloader import download, get_download_size
 from scripts.archive import archive
+
+console = Console()
 
 
 def main():
@@ -15,44 +22,55 @@ def main():
     )
     parser.add_argument("-v", "--version", action="version", version="Version: 1.0")
 
-    parser.add_argument("id", help="id or link of the doujin to be downloaded")
-    parser.add_argument("-o", "--output", help="specify the output file name")
+    parser.add_argument("id", nargs='+', help="id or link of the doujin to be downloaded")
+    parser.add_argument("-o", "--output", nargs='+', help="specify the output file name")
 
-    archive = parser.add_mutually_exclusive_group()
-    archive.add_argument("-z", "--zip", action="store_true", help="zip the file")
-    archive.add_argument("-c", "--cbz", action="store_true", help="save the file to .cbz format")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("-z", "--zip", action="store_true", help="zip the file")
+    group.add_argument("-c", "--cbz", action="store_true", help="save the file to .cbz format")
 
     args = parser.parse_args()
-    n_id: str = get_id(args.id)
-    output: str = args.output if args.output is not None else ""
-    zip_: bool = args.zip
-    cbz: bool = args.cbz
+    n_ids = args.id
+    outputs = args.output if args.output is not None else [''] * len(n_ids)
 
-    if n_id == "":
-        print(f"NHDownloader: error: invalid ID or Link: {args.id}")
-        exit(1)
-
-    if output != "" and not is_valid_filename(output):
-        print(f"NHDownloader: error: argument -o/--output: not a valid file name: {output}")
+    if len(n_ids) != len(outputs):
+        console.print("NHDownloader: error: the number of ids and outputs must match")
         exit(2)
 
-    download_doujin(n_id, output, cbz, zip_)
+    for n_id, output in zip(n_ids, outputs):
+        zip_: bool = args.zip
+        cbz: bool = args.cbz
+
+        if output and not is_valid_filename(output):
+            console.print(f"NHDownloader: error: argument -o/--output: not a valid file name: {output}")
+            exit(2)
+
+        download_doujin(n_id, output, cbz, zip_)
+
+    console.print(f"[green]>[/green] Done")
 
 
 def download_doujin(n_id: str, output: str, cbz: bool, zip_: bool) -> None:
     title: str
     image_urls: List[str]
+    # Using multi thread for faster download
+    num_workers: int = 2 * cpu_count() + 1
 
-    print("Fetching data... ", end="", flush=True)
-    try:
-        title, image_urls = scrapper(n_id)
-        print(f"{title} @ {len(image_urls)} pages")
-    except Exception as e:
-        print(f"Failed to fetch data: {e}")
-        exit(3)
+    with Status("Fetching data", console=console):
+        try:
+            title, image_urls = scrapper(n_id)
+
+            with Client() as client:
+                total_size: int = get_download_size(image_urls, client, num_workers)
+        except Exception:
+            console.print("Failed to fetch data: No doujin found", style="bold red")
+            exit(3)
+
+    console.print(f"[green]>[/green] [white]{title}[/white] [green]@[/green] {len(image_urls)} pages [green]@[/green] "
+                  f"{total_size / 1_000_000} MB")
 
     # Download images
-    download(title if output == "" else output, image_urls)
+    download(title if output == "" else output, image_urls, total_size, num_workers, console)
 
     # Package to zip / cbz
     if zip_ or cbz:
