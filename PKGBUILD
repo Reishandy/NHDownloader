@@ -1,5 +1,5 @@
 pkgname=NHDownloader
-pkgver=1.0
+pkgver=1.1
 pkgrel=1
 pkgdesc="A Python-based command-line tool that allows you to download doujin from nhentai.net"
 arch=('any')
