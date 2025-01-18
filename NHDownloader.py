@@ -62,9 +62,9 @@ def download_doujin(n_id: str, output: str, cbz: bool, zip_: bool) -> None:
             title, image_urls = scrapper(n_id)
 
             with Client() as client:
-                total_size: int = get_download_size(image_urls, client, num_workers)
+                total_size: int = get_download_size(image_urls, client)
         except Exception:
-            console.print("Failed to fetch data: No doujin found", style="bold red")
+            console.print("Failed to fetch data", style="bold red")
             exit(3)
 
     console.print(f"[green]>[/green] [white]{title}[/white] [green]@[/green] {len(image_urls)} pages [green]@[/green] "

@@ -33,10 +33,11 @@ def download(output: str, image_urls: List[str], total_size: int, num_workers: i
                     executor.submit(download_image, url, filename, progress, download_task, client)
 
 
-def get_download_size(image_urls: List[str], client, workers: int) -> int:
+def get_download_size(image_urls: List[str], client) -> int:
     total: int = 0
 
-    with ThreadPoolExecutor(max_workers=workers) as executor:
+    # Limiting the worker to 10, else it will get timed out for some reason
+    with ThreadPoolExecutor(max_workers=10) as executor: 
         futures = {executor.submit(get_single_image_size, url, client) for url in image_urls}
         for future in as_completed(futures):
             total += future.result()
